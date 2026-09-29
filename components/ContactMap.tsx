@@ -159,7 +159,13 @@ export default function ContactMap({
 
     mapRef.current = map;
 
+    // Container height is layout-driven (flex / fixed full-screen on mobile), so
+    // tell Leaflet whenever it changes or tiles render as a grey strip.
+    const resizeObserver = new ResizeObserver(() => map.invalidateSize());
+    resizeObserver.observe(el);
+
     return () => {
+      resizeObserver.disconnect();
       map.remove();
       mapRef.current = null;
       markersMapRef.current.clear();
@@ -436,18 +442,18 @@ export default function ContactMap({
       const popup = L.popup({ className: "contact-map-popup" });
       popup.setContent(
         `<div class="min-w-[180px]">
-           <p class="font-semibold text-slate-900">${escapeHtml(
+           <p class="font-semibold text-stone-900">${escapeHtml(
              point.company ?? point.fullName ?? "Unknown"
            )}</p>
            ${point.fullName && point.company
-             ? `<p class="text-sm text-slate-600">${escapeHtml(point.fullName)}</p>`
+             ? `<p class="text-sm text-stone-600">${escapeHtml(point.fullName)}</p>`
              : ""}
            ${point.location
-             ? `<p class="mt-1 text-xs text-slate-500">${escapeHtml(point.location)}</p>`
+             ? `<p class="mt-1 text-xs text-stone-500">${escapeHtml(point.location)}</p>`
              : ""}
            <button data-contact-id="${escapeHtml(
              point.id
-           )}" class="contact-map-view mt-2 w-full rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-900 hover:bg-sky-50 hover:border-sky-300">
+           )}" class="contact-map-view mt-2 w-full rounded-md border border-stone-300 px-3 py-1.5 text-sm text-stone-900 hover:bg-accent-50 hover:border-accent-300">
              View Profile
            </button>
          </div>`
@@ -457,11 +463,11 @@ export default function ContactMap({
       const tooltip = L.tooltip({ direction: "top", offset: [0, -35] });
       tooltip.setContent(
         `<div class="px-1">
-           <p class="text-sm font-semibold text-slate-900">${escapeHtml(
+           <p class="text-sm font-semibold text-stone-900">${escapeHtml(
              point.company ?? point.fullName ?? "Unknown"
            )}</p>
            ${point.fullName && point.company
-             ? `<p class="text-xs text-slate-600">${escapeHtml(point.fullName)}</p>`
+             ? `<p class="text-xs text-stone-600">${escapeHtml(point.fullName)}</p>`
              : ""}
          </div>`
       );
@@ -522,36 +528,33 @@ export default function ContactMap({
   const resolvedCount = points.length;
 
   return (
-    <div>
-      <div className="mb-3 flex items-center justify-between text-sm text-slate-600">
+    <div className="contact-map flex h-full min-h-0 flex-col">
+      <div className="mb-3 hidden shrink-0 items-center justify-between text-sm text-stone-600 md:flex">
         <div>
-          Showing <span className="font-semibold text-slate-900">{resolvedCount}</span> of <span className="font-semibold text-slate-900">{contacts.length}</span> contacts on the map
+          Showing <span className="font-semibold text-stone-900">{resolvedCount}</span> of <span className="font-semibold text-stone-900">{contacts.length}</span> contacts on the map
           {resolvedCount < contacts.length && !loading && !resolvingProgress && (
-            <span className="text-slate-500"> (remaining have no resolvable location)</span>
+            <span className="text-stone-500"> (remaining have no resolvable location)</span>
           )}
         </div>
         {resolvingProgress && (
-          <div className="text-xs text-sky-600 font-medium animate-pulse">
+          <div className="text-xs text-accent-600 font-medium animate-pulse">
             Adding markers in real-time ({resolvingProgress.current}/{resolvingProgress.total})…
           </div>
         )}
       </div>
 
-      <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-        <div
-          ref={containerRef}
-          style={{ height: "560px", width: "100%" }}
-        />
+      <div className="relative min-h-0 flex-1 overflow-hidden bg-stone-100 md:min-h-[420px] md:rounded-2xl md:shadow-soft md:ring-1 md:ring-stone-900/[0.04]">
+        <div ref={containerRef} className="absolute inset-0" />
 
         {/* Locate me button */}
-        <div className="absolute bottom-3 right-3 z-[1000] flex flex-col items-end gap-2">
+        <div className="absolute bottom-28 right-3 z-[1000] flex flex-col items-end gap-2 md:bottom-3">
           <button
             onClick={locateMe}
             disabled={locStatus === "requesting" || locStatus === "granted"}
-            className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow hover:bg-slate-100 disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-sm font-medium text-ink shadow-lift transition hover:bg-stone-50 active:scale-[.98] disabled:opacity-60"
             title="Show my live location"
           >
-            <span className="inline-block h-3 w-3 rounded-full bg-sky-600" />
+            <span className="inline-block h-3 w-3 rounded-full bg-accent-600" />
             {locStatus === "requesting" ? "Locating…" : "Locate me"}
           </button>
 
@@ -574,15 +577,15 @@ export default function ContactMap({
 
         {/* Progressive resolution indicator */}
         {resolvingProgress && (
-          <div className="pointer-events-none absolute top-3 left-3 z-[1000] flex items-center gap-2 rounded-lg border border-sky-200 bg-white/95 px-3 py-2 text-xs font-medium text-slate-800 shadow-lg backdrop-blur">
+          <div className="pointer-events-none absolute left-3 top-32 z-[1000] flex md:top-3 items-center gap-2 rounded-lg border border-accent-200 bg-white/95 px-3 py-2 text-xs font-medium text-stone-800 shadow-lg backdrop-blur">
             <span className="relative flex h-2.5 w-2.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-sky-400 opacity-75"></span>
-              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-sky-600"></span>
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-400 opacity-75"></span>
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-accent-600"></span>
             </span>
             <span>
-              Resolving new locations: <span className="font-semibold text-sky-700">{resolvingProgress.current}</span> of <span className="font-semibold">{resolvingProgress.total}</span>
+              Resolving new locations: <span className="font-semibold text-accent-700">{resolvingProgress.current}</span> of <span className="font-semibold">{resolvingProgress.total}</span>
               {resolvingProgress.query && (
-                <span className="text-slate-500 ml-1">
+                <span className="text-stone-500 ml-1">
                   (&ldquo;{resolvingProgress.query.length > 28 ? resolvingProgress.query.slice(0, 28) + "…" : resolvingProgress.query}&rdquo;)
                 </span>
               )}
@@ -593,8 +596,8 @@ export default function ContactMap({
         {/* Initial loading screen if no cached points exist yet */}
         {loading && !resolvingProgress && points.length === 0 && (
           <div className="pointer-events-none absolute inset-0 z-[1000] flex items-center justify-center bg-white/70 backdrop-blur-sm">
-            <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-6 py-4 text-sm font-medium text-slate-700 shadow-md">
-              <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-sky-600 border-t-transparent" />
+            <div role="status" className="flex items-center gap-3 rounded-xl bg-white px-5 py-3.5 text-sm font-medium text-ink shadow-lift">
+              <span className="h-2 w-2 animate-pulse rounded-full bg-accent-500" />
               Checking location cache…
             </div>
           </div>

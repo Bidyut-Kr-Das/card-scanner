@@ -65,11 +65,11 @@ export default function LoginForm() {
 
       <div className="border-b p-8 text-center">
 
-        <h1 className="text-3xl font-bold text-slate-800">
+        <h1 className="text-3xl font-bold text-stone-800">
           Login
         </h1>
 
-        <p className="text-gray-500 mt-2">
+        <p className="text-stone-500 mt-2">
           Welcome back to Card Scanner
         </p>
 
@@ -100,7 +100,7 @@ export default function LoginForm() {
 
             <Mail
               size={18}
-              className="absolute left-3 top-3.5 text-gray-400"
+              className="absolute left-3 top-3.5 text-stone-400"
             />
 
             <input
@@ -111,7 +111,7 @@ export default function LoginForm() {
                 setEmail(e.target.value)
               }
               placeholder="john@example.com"
-              className="w-full border rounded-lg py-3 pl-10 pr-4 outline-none focus:ring-2 focus:ring-sky-500"
+              className="w-full border rounded-lg py-3 pl-10 pr-4 outline-none focus:ring-2 focus:ring-accent-500"
             />
 
           </div>
@@ -130,7 +130,7 @@ export default function LoginForm() {
 
             <Lock
               size={18}
-              className="absolute left-3 top-3.5 text-gray-400"
+              className="absolute left-3 top-3.5 text-stone-400"
             />
 
             <input
@@ -145,7 +145,7 @@ export default function LoginForm() {
                 setPassword(e.target.value)
               }
               placeholder="Enter password"
-              className="w-full border rounded-lg py-3 pl-10 pr-12 outline-none focus:ring-2 focus:ring-sky-500"
+              className="w-full border rounded-lg py-3 pl-10 pr-12 outline-none focus:ring-2 focus:ring-accent-500"
             />
 
             <button
@@ -172,7 +172,7 @@ export default function LoginForm() {
 
           <Link
             href="/forgot-password"
-            className="text-sky-600 hover:underline text-sm"
+            className="text-accent-600 hover:underline text-sm"
           >
             Forgot Password?
           </Link>
@@ -184,7 +184,7 @@ export default function LoginForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-sky-600 hover:bg-sky-700 text-white rounded-lg py-3 flex items-center justify-center gap-2 disabled:opacity-60"
+          className="w-full bg-accent-600 hover:bg-accent-700 text-white rounded-lg py-3 flex items-center justify-center gap-2 disabled:opacity-60"
         >
 
           {loading ? (
@@ -212,7 +212,7 @@ export default function LoginForm() {
 
           <Link
             href="/register"
-            className="ml-2 text-sky-600 hover:underline font-medium"
+            className="ml-2 text-accent-600 hover:underline font-medium"
           >
             Register
           </Link>

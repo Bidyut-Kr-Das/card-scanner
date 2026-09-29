@@ -37,7 +37,7 @@ export default function RoleGuard({
               Unauthorized
             </h2>
 
-            <p className="mt-2 text-gray-600">
+            <p className="mt-2 text-stone-600">
               Please login to continue.
             </p>
           </div>
@@ -56,7 +56,7 @@ export default function RoleGuard({
               Access Denied
             </h2>
 
-            <p className="mt-2 text-gray-700">
+            <p className="mt-2 text-stone-700">
               You don't have permission to access this page.
             </p>
           </div>

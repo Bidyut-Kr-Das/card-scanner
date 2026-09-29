@@ -80,22 +80,22 @@ export default function ProfileModal({
 
       {/* Slide-over panel on right */}
       <aside className="w-full max-w-xl bg-white shadow-xl">
-        <div className="h-full flex flex-col overflow-y-auto p-6 text-slate-900">
+        <div className="h-full flex flex-col overflow-y-auto p-6 text-stone-900">
           <div className="flex items-start justify-between">
             <div>
-              <h2 className="text-2xl font-bold text-slate-900">{contact.fullName}</h2>
-              <p className="text-sm text-slate-600">{contact.company}</p>
+              <h2 className="text-2xl font-bold text-stone-900">{contact.fullName}</h2>
+              <p className="text-sm text-stone-600">{contact.company}</p>
             </div>
 
             <div>
-              <button onClick={onClose} className="text-slate-700 hover:text-slate-900">Close</button>
+              <button onClick={onClose} className="text-stone-700 hover:text-stone-900">Close</button>
             </div>
           </div>
 
           <div className="mt-4 space-y-6">
             {/* Profile collection buttons */}
             <section>
-              <p className="text-sm uppercase tracking-[0.2em] text-slate-500">
+              <p className="text-sm uppercase tracking-[0.2em] text-stone-500">
                 Collect profile from
               </p>
               <div className="mt-2">
@@ -106,7 +106,7 @@ export default function ProfileModal({
             {/* Immediate contact details from card */}
             <section className="grid gap-4 sm:grid-cols-[80px_minmax(0,1fr)] items-start">
               {contact.fullName ? (
-                <div className="flex h-20 w-20 items-center justify-center rounded-full border border-slate-200 bg-slate-100 text-2xl font-semibold text-slate-700">
+                <div className="flex h-20 w-20 items-center justify-center rounded-full border border-stone-200 bg-stone-100 text-2xl font-semibold text-stone-700">
                   {contact.fullName
                     .split(" ")
                     .map((w) => w[0])
@@ -115,23 +115,23 @@ export default function ProfileModal({
                     .toUpperCase()}
                 </div>
               ) : (
-                <div className="h-20 w-20 rounded-full border border-slate-200 bg-slate-100" />
+                <div className="h-20 w-20 rounded-full border border-stone-200 bg-stone-100" />
               )}
 
               <div className="space-y-2">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.15em] text-slate-500">Mobile</p>
-                  <p className="text-sm text-slate-700">{contact.mobileNumbers?.[0] ?? "-"}</p>
+                  <p className="text-xs uppercase tracking-[0.15em] text-stone-500">Mobile</p>
+                  <p className="text-sm text-stone-700">{contact.mobileNumbers?.[0] ?? "-"}</p>
                 </div>
 
                 <div>
-                  <p className="text-xs uppercase tracking-[0.15em] text-slate-500">Email</p>
-                  <p className="text-sm text-slate-700">{contact.emails?.[0] ?? "-"}</p>
+                  <p className="text-xs uppercase tracking-[0.15em] text-stone-500">Email</p>
+                  <p className="text-sm text-stone-700">{contact.emails?.[0] ?? "-"}</p>
                 </div>
 
                 <div>
-                  <p className="text-xs uppercase tracking-[0.15em] text-slate-500">Website</p>
-                  <p className="text-sm text-slate-700">{contact.website ?? "-"}</p>
+                  <p className="text-xs uppercase tracking-[0.15em] text-stone-500">Website</p>
+                  <p className="text-sm text-stone-700">{contact.website ?? "-"}</p>
                 </div>
               </div>
             </section>
@@ -139,7 +139,7 @@ export default function ProfileModal({
             {/* Enrichment area: show immediately with contact info, update when profile arrives */}
             <section>
               {loading && (
-                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-600">Enriching profile…</div>
+                <div className="rounded-xl border border-stone-200 bg-stone-50 p-4 text-stone-600">Enriching profile…</div>
               )}
 
               {error && (
@@ -149,64 +149,64 @@ export default function ProfileModal({
               {profile && (
                 <div className="space-y-4">
                   <div>
-                    <p className="text-sm uppercase tracking-[0.2em] text-slate-500">Location</p>
-                    <p className="text-base text-slate-700">{profile.location ?? "Not available"}</p>
+                    <p className="text-sm uppercase tracking-[0.2em] text-stone-500">Location</p>
+                    <p className="text-base text-stone-700">{profile.location ?? "Not available"}</p>
                   </div>
 
                   <div>
-                    <p className="text-sm uppercase tracking-[0.2em] text-slate-500">Official site</p>
+                    <p className="text-sm uppercase tracking-[0.2em] text-stone-500">Official site</p>
                     {profile.officialSite ? (
-                      <a href={profile.officialSite} target="_blank" rel="noreferrer" className="text-sky-600 hover:text-sky-800">{profile.officialSite.replace(/^https?:\/\//, "")}</a>
+                      <a href={profile.officialSite} target="_blank" rel="noreferrer" className="text-accent-600 hover:text-accent-800">{profile.officialSite.replace(/^https?:\/\//, "")}</a>
                     ) : (
-                      <p className="text-slate-700">Not found</p>
+                      <p className="text-stone-700">Not found</p>
                     )}
                   </div>
 
                   <div>
-                    <p className="text-sm uppercase tracking-[0.2em] text-slate-500">LinkedIn</p>
+                    <p className="text-sm uppercase tracking-[0.2em] text-stone-500">LinkedIn</p>
                     {profile.linkedinProfile ? (
-                      <a href={profile.linkedinProfile} target="_blank" rel="noreferrer" className="text-sky-600 hover:text-sky-800">{profile.linkedinProfile}</a>
+                      <a href={profile.linkedinProfile} target="_blank" rel="noreferrer" className="text-accent-600 hover:text-accent-800">{profile.linkedinProfile}</a>
                     ) : (
-                      <p className="text-slate-700">Not available</p>
+                      <p className="text-stone-700">Not available</p>
                     )}
                   </div>
 
-                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                    <h3 className="font-semibold text-slate-900">Summary</h3>
-                    <p className="mt-2 text-slate-700">{renderProfileField(profile.summary) ?? "No summary available."}</p>
+                  <div className="rounded-xl border border-stone-200 bg-stone-50 p-4">
+                    <h3 className="font-semibold text-stone-900">Summary</h3>
+                    <p className="mt-2 text-stone-700">{renderProfileField(profile.summary) ?? "No summary available."}</p>
                   </div>
 
                   <div className="grid gap-4 md:grid-cols-2">
-                    <div className="rounded-xl border border-slate-200 p-4">
-                      <h3 className="font-semibold text-slate-900">Company Details</h3>
-                      <p className="mt-2 text-slate-700">{renderProfileField(profile.companyDetails) ?? "Not available."}</p>
+                    <div className="rounded-xl border border-stone-200 p-4">
+                      <h3 className="font-semibold text-stone-900">Company Details</h3>
+                      <p className="mt-2 text-stone-700">{renderProfileField(profile.companyDetails) ?? "Not available."}</p>
                     </div>
 
-                    <div className="rounded-xl border border-slate-200 p-4">
-                      <h3 className="font-semibold text-slate-900">Career Background</h3>
-                      <p className="mt-2 text-slate-700">{renderProfileField(profile.careerBackground) ?? "Not available."}</p>
+                    <div className="rounded-xl border border-stone-200 p-4">
+                      <h3 className="font-semibold text-stone-900">Career Background</h3>
+                      <p className="mt-2 text-stone-700">{renderProfileField(profile.careerBackground) ?? "Not available."}</p>
                     </div>
                   </div>
 
-                  <div className="rounded-xl border border-slate-200 p-4">
-                    <h3 className="font-semibold text-slate-900">Other Profiles</h3>
+                  <div className="rounded-xl border border-stone-200 p-4">
+                    <h3 className="font-semibold text-stone-900">Other Profiles</h3>
                     {profile.socialProfiles && profile.socialProfiles.length > 0 ? (
-                      <ul className="mt-3 space-y-2 text-slate-700">
+                      <ul className="mt-3 space-y-2 text-stone-700">
                         {profile.socialProfiles.map((social) => (
                           <li key={social.url}>
-                            <a href={social.url} target="_blank" rel="noreferrer" className="text-sky-600 hover:text-sky-800">{social.label}: {social.url.replace(/^https?:\/\//, "")}</a>
+                            <a href={social.url} target="_blank" rel="noreferrer" className="text-accent-600 hover:text-accent-800">{social.label}: {social.url.replace(/^https?:\/\//, "")}</a>
                           </li>
                         ))}
                       </ul>
                     ) : (
-                      <p className="mt-3 text-slate-700">No other social profiles found.</p>
+                      <p className="mt-3 text-stone-700">No other social profiles found.</p>
                     )}
                   </div>
                 </div>
               )}
 
               {!loading && !profile && !error && (
-                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-700">No extra profile details were found.</div>
+                <div className="rounded-xl border border-stone-200 bg-stone-50 p-4 text-stone-700">No extra profile details were found.</div>
               )}
             </section>
           </div>

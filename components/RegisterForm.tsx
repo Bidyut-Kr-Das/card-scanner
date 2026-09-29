@@ -102,11 +102,11 @@ export default function RegisterForm() {
 
       <div className="border-b p-8 text-center">
 
-        <h1 className="text-3xl font-bold text-slate-800">
+        <h1 className="text-3xl font-bold text-stone-800">
           Create Account
         </h1>
 
-        <p className="text-gray-500 mt-2">
+        <p className="text-stone-500 mt-2">
           Register to Business Card Scanner
         </p>
 
@@ -135,7 +135,7 @@ export default function RegisterForm() {
 
         <div>
 
-          <label className="block text-sm font-medium text-slate-700 mb-2">
+          <label className="block text-sm font-medium text-stone-700 mb-2">
             Full Name
           </label>
 
@@ -143,7 +143,7 @@ export default function RegisterForm() {
 
             <User
               size={18}
-              className="absolute left-3 top-3.5 text-gray-400"
+              className="absolute left-3 top-3.5 text-stone-400"
             />
 
             <input
@@ -154,7 +154,7 @@ export default function RegisterForm() {
                 setName(e.target.value)
               }
               placeholder="John Doe"
-              className="w-full border rounded-lg py-3 pl-10 pr-4 text-slate-900 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-sky-500"
+              className="w-full border rounded-lg py-3 pl-10 pr-4 text-stone-900 placeholder:text-stone-400 outline-none focus:ring-2 focus:ring-accent-500"
             />
 
           </div>
@@ -165,7 +165,7 @@ export default function RegisterForm() {
 
         <div>
 
-          <label className="block text-sm font-medium text-slate-700 mb-2">
+          <label className="block text-sm font-medium text-stone-700 mb-2">
             Email
           </label>
 
@@ -173,7 +173,7 @@ export default function RegisterForm() {
 
             <Mail
               size={18}
-              className="absolute left-3 top-3.5 text-gray-400"
+              className="absolute left-3 top-3.5 text-stone-400"
             />
 
             <input
@@ -184,7 +184,7 @@ export default function RegisterForm() {
                 setEmail(e.target.value)
               }
               placeholder="john@example.com"
-              className="w-full border rounded-lg py-3 pl-10 pr-4 text-slate-900 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-sky-500"
+              className="w-full border rounded-lg py-3 pl-10 pr-4 text-stone-900 placeholder:text-stone-400 outline-none focus:ring-2 focus:ring-accent-500"
             />
 
           </div>
@@ -195,7 +195,7 @@ export default function RegisterForm() {
 
         <div>
 
-          <label className="block text-sm font-medium text-slate-700 mb-2">
+          <label className="block text-sm font-medium text-stone-700 mb-2">
             Password
           </label>
 
@@ -203,7 +203,7 @@ export default function RegisterForm() {
 
             <Lock
               size={18}
-              className="absolute left-3 top-3.5 text-gray-400"
+              className="absolute left-3 top-3.5 text-stone-400"
             />
 
             <input
@@ -214,7 +214,7 @@ export default function RegisterForm() {
                 setPassword(e.target.value)
               }
               placeholder="Minimum 8 characters"
-              className="w-full border rounded-lg py-3 pl-10 pr-12 text-slate-900 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-sky-500"
+              className="w-full border rounded-lg py-3 pl-10 pr-12 text-stone-900 placeholder:text-stone-400 outline-none focus:ring-2 focus:ring-accent-500"
             />
 
             <button
@@ -239,7 +239,7 @@ export default function RegisterForm() {
 
         <div>
 
-          <label className="block text-sm font-medium text-slate-700 mb-2">
+          <label className="block text-sm font-medium text-stone-700 mb-2">
             Confirm Password
           </label>
 
@@ -247,7 +247,7 @@ export default function RegisterForm() {
 
             <Lock
               size={18}
-              className="absolute left-3 top-3.5 text-gray-400"
+              className="absolute left-3 top-3.5 text-stone-400"
             />
 
             <input
@@ -262,7 +262,7 @@ export default function RegisterForm() {
                 setConfirmPassword(e.target.value)
               }
               placeholder="Confirm password"
-              className="w-full border rounded-lg py-3 pl-10 pr-12 text-slate-900 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-sky-500"
+              className="w-full border rounded-lg py-3 pl-10 pr-12 text-stone-900 placeholder:text-stone-400 outline-none focus:ring-2 focus:ring-accent-500"
             />
 
             <button
@@ -290,7 +290,7 @@ export default function RegisterForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-sky-600 hover:bg-sky-700 text-white rounded-lg py-3 flex items-center justify-center gap-2 disabled:opacity-60"
+          className="w-full bg-accent-600 hover:bg-accent-700 text-white rounded-lg py-3 flex items-center justify-center gap-2 disabled:opacity-60"
         >
 
           {loading ? (
@@ -318,7 +318,7 @@ export default function RegisterForm() {
 
           <Link
             href="/login"
-            className="ml-2 text-sky-600 hover:underline font-medium"
+            className="ml-2 text-accent-600 hover:underline font-medium"
           >
             Login
           </Link>

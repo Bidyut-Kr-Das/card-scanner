@@ -12,8 +12,8 @@ import {
 } from "@/components/ProfileRichText";
 
 const STATUS_STYLES: Record<string, string> = {
-  PENDING: "bg-slate-100 text-slate-700 border-slate-200",
-  RUNNING: "bg-sky-50 text-sky-700 border-sky-200",
+  PENDING: "bg-stone-100 text-stone-700 border-stone-200",
+  RUNNING: "bg-accent-50 text-accent-700 border-accent-200",
   DONE: "bg-emerald-50 text-emerald-700 border-emerald-200",
   PARTIAL: "bg-amber-50 text-amber-700 border-amber-200",
   FAILED: "bg-red-50 text-red-700 border-red-200",
@@ -59,7 +59,7 @@ type ProfileData = {
   } | null;
 };
 
-function initials(name: string | null): string {
+export function initials(name: string | null): string {
   return (name ?? "")
     .split(" ")
     .map((w) => w[0])
@@ -76,11 +76,11 @@ function Field({
   children: React.ReactNode;
 }) {
   return (
-    <div className="border-t border-slate-200 py-3 first:border-t-0">
-      <p className="text-xs uppercase tracking-[0.15em] text-slate-500">
+    <div className="grid gap-1 border-t border-stone-100 py-3 first:border-t-0 sm:grid-cols-[8rem_1fr] sm:gap-4">
+      <p className="text-xs font-medium text-stone-400 sm:pt-0.5">
         {label}
       </p>
-      <div className="mt-1 text-sm text-slate-800">{children}</div>
+      <div className="min-w-0 break-words text-sm text-ink">{children}</div>
     </div>
   );
 }
@@ -143,6 +143,15 @@ export default function ProfileSlideOver({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, contactId]);
 
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
+
   if (!open) return null;
 
   const contact = data?.contact;
@@ -160,20 +169,20 @@ export default function ProfileSlideOver({
   const otherProfiles = whatsapp?.remaining ?? enrichment?.other_profiles;
 
   return (
-    <div className="fixed inset-0 z-50 flex">
+    <div className="fixed inset-0 z-50 flex" role="dialog" aria-modal="true" aria-label="Contact profile">
       {/* overlay left side to close */}
       <div
-        className="flex-1 bg-black/40"
+        className="flex-1 animate-[fade_0.25s_ease-out_both] bg-ink/30 backdrop-blur-[2px]"
         onClick={onClose}
         aria-hidden
       />
 
       {/* Slide-over panel on right */}
-      <aside className="w-full max-w-[50vw] bg-white shadow-xl">
-        <div className="flex h-full flex-col overflow-y-auto text-slate-900">
+      <aside className="w-full animate-[slide-in_0.4s_cubic-bezier(0.2,0.8,0.2,1)_both] bg-paper shadow-pop sm:max-w-xl lg:max-w-[50vw]">
+        <div className="flex h-full flex-col overflow-y-auto text-ink">
           {/* Header */}
           {contact && (
-            <div className="bg-gradient-to-r from-sky-700 to-blue-600 p-6 text-white">
+            <div className="bg-accent-800 p-6 text-white">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-4">
                   {enrichment?.avatar_url ? (
@@ -181,17 +190,17 @@ export default function ProfileSlideOver({
                     <img
                       src={enrichment.avatar_url}
                       alt={contact.fullName ?? "Contact"}
-                      className="h-16 w-16 rounded-full border-4 border-white/30 object-cover"
+                      className="h-16 w-16 rounded-2xl object-cover ring-4 ring-white/15"
                     />
                   ) : (
-                    <div className="flex h-16 w-16 items-center justify-center rounded-full border-4 border-white/30 bg-white/20 text-xl font-semibold">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/15 font-display text-2xl font-medium ring-4 ring-white/10">
                       {initials(contact.fullName) || "?"}
                     </div>
                   )}
 
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <h2 className="text-xl font-bold">
+                      <h2 className="font-display text-2xl font-medium tracking-tight">
                         {contact.fullName ?? "Unknown"}
                       </h2>
                       <span
@@ -202,13 +211,13 @@ export default function ProfileSlideOver({
                         {status}
                       </span>
                     </div>
-                    <p className="mt-0.5 text-sm text-sky-100">
+                    <p className="mt-0.5 text-sm text-accent-100">
                       {contact.jobTitle}
                       {contact.jobTitle && contact.company ? " · " : ""}
                       {contact.company}
                     </p>
                     {contact.companyLocation && (
-                      <p className="mt-1 flex items-center gap-1 text-xs text-sky-100">
+                      <p className="mt-1 flex items-center gap-1 text-xs text-accent-100">
                         <MapPin className="h-3 w-3" />
                         {contact.companyLocation}
                       </p>
@@ -218,7 +227,7 @@ export default function ProfileSlideOver({
 
                 <button
                   onClick={onClose}
-                  className="rounded-full p-1 text-white/80 hover:bg-white/20 hover:text-white"
+                  className="rounded-lg p-1.5 text-white/80 transition hover:bg-white/15 hover:text-white"
                   aria-label="Close"
                 >
                   <X className="h-5 w-5" />
@@ -227,15 +236,24 @@ export default function ProfileSlideOver({
             </div>
           )}
 
-          <div className="flex-1 p-6">
+          <div className="flex-1 p-6 sm:p-8">
             {loading && !contact && (
-              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-600">
-                Loading profile…
+              <div role="status" aria-label="Loading profile" className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <div className="skeleton h-16 w-16 rounded-2xl" />
+                  <div className="flex-1 space-y-2">
+                    <div className="skeleton h-5 w-1/2" />
+                    <div className="skeleton h-3 w-1/3" />
+                  </div>
+                </div>
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="skeleton h-4" style={{ width: `${90 - i * 8}%` }} />
+                ))}
               </div>
             )}
 
             {error && (
-              <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-red-700">
+              <div role="alert" className="rounded-xl bg-red-50 p-4 text-sm text-red-800 ring-1 ring-red-200">
                 {error}
               </div>
             )}
@@ -244,8 +262,8 @@ export default function ProfileSlideOver({
               <div className="space-y-6">
                 {/* Card details */}
                 <section>
-                  <h3 className="mb-2 text-sm font-semibold text-slate-900">
-                    Card Details
+                  <h3 className="mb-1 font-display text-lg font-medium text-ink">
+                    From the card
                   </h3>
 
                   <Field label="Mobile">
@@ -254,7 +272,7 @@ export default function ProfileSlideOver({
                         <p key={`m-${i}`}>{n}</p>
                       ))
                     ) : (
-                      <span className="text-slate-500">-</span>
+                      <span className="text-stone-500">-</span>
                     )}
                   </Field>
 
@@ -264,7 +282,7 @@ export default function ProfileSlideOver({
                         <p key={`t-${i}`}>{n}</p>
                       ))
                     ) : (
-                      <span className="text-slate-500">-</span>
+                      <span className="text-stone-500">-</span>
                     )}
                   </Field>
 
@@ -274,13 +292,13 @@ export default function ProfileSlideOver({
                         <a
                           key={`e-${i}`}
                           href={`mailto:${e}`}
-                          className="block text-sky-600 hover:text-sky-800"
+                          className="block text-accent-600 hover:text-accent-800"
                         >
                           {e}
                         </a>
                       ))
                     ) : (
-                      <span className="text-slate-500">-</span>
+                      <span className="text-stone-500">-</span>
                     )}
                   </Field>
 
@@ -288,7 +306,7 @@ export default function ProfileSlideOver({
                     {contact.website ? (
                       <Linkify text={contact.website} />
                     ) : (
-                      <span className="text-slate-500">-</span>
+                      <span className="text-stone-500">-</span>
                     )}
                   </Field>
 
@@ -296,7 +314,7 @@ export default function ProfileSlideOver({
                     {contact.linkedin ? (
                       <Linkify text={contact.linkedin} />
                     ) : (
-                      <span className="text-slate-500">-</span>
+                      <span className="text-stone-500">-</span>
                     )}
                   </Field>
 
@@ -304,22 +322,22 @@ export default function ProfileSlideOver({
                     {contact.address ? (
                       contact.address
                     ) : (
-                      <span className="text-slate-500">-</span>
+                      <span className="text-stone-500">-</span>
                     )}
                   </Field>
                 </section>
 
                 {/* Enriched profile */}
                 <section>
-                  <h3 className="mb-2 text-sm font-semibold text-slate-900">
-                    Enriched Profile
+                  <h3 className="mb-1 font-display text-lg font-medium text-ink">
+                    Enriched profile
                   </h3>
 
                   <Field label="Summary">
                     {enrichment?.summary ? (
                       <p className="whitespace-pre-wrap">{enrichment.summary}</p>
                     ) : (
-                      <span className="text-slate-500">Not available</span>
+                      <span className="text-stone-500">Not available</span>
                     )}
                   </Field>
 
@@ -327,7 +345,7 @@ export default function ProfileSlideOver({
                     {enrichment?.location ? (
                       enrichment.location
                     ) : (
-                      <span className="text-slate-500">Not available</span>
+                      <span className="text-stone-500">Not available</span>
                     )}
                   </Field>
 
@@ -359,7 +377,7 @@ export default function ProfileSlideOver({
                     {enrichment?.company_core_business ? (
                       <BulletBlock text={enrichment.company_core_business} />
                     ) : (
-                      <span className="text-slate-500">Not available</span>
+                      <span className="text-stone-500">Not available</span>
                     )}
                   </Field>
 
@@ -369,7 +387,7 @@ export default function ProfileSlideOver({
                         {enrichment.company_details}
                       </p>
                     ) : (
-                      <span className="text-slate-500">Not available</span>
+                      <span className="text-stone-500">Not available</span>
                     )}
                   </Field>
 
@@ -377,7 +395,7 @@ export default function ProfileSlideOver({
                     {enrichment?.career_background ? (
                       <BulletBlock text={enrichment.career_background} />
                     ) : (
-                      <span className="text-slate-500">Not available</span>
+                      <span className="text-stone-500">Not available</span>
                     )}
                   </Field>
 
@@ -388,7 +406,7 @@ export default function ProfileSlideOver({
                   )}
 
                   {!enrichment && (
-                    <div className="mt-2 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+                    <div className="mt-2 rounded-xl bg-stone-100 p-4 text-sm text-stone-600">
                       No enrichment yet.
                     </div>
                   )}
@@ -397,7 +415,7 @@ export default function ProfileSlideOver({
             )}
 
             {!contact && !loading && !error && (
-              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-600">
+              <div className="rounded-xl bg-stone-100 p-4 text-sm text-stone-600">
                 Contact not found.
               </div>
             )}

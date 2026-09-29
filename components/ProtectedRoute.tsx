@@ -29,9 +29,9 @@ export default function ProtectedRoute({
       <div className="flex min-h-screen items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <Loader2
-            className="h-10 w-10 animate-spin text-sky-600"
+            className="h-10 w-10 animate-spin text-accent-600"
           />
-          <p className="text-gray-600">
+          <p className="text-stone-600">
             Checking authentication...
           </p>
         </div>

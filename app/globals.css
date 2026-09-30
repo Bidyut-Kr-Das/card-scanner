@@ -158,6 +158,20 @@ table,
   }
 }
 
+/* Map tile credit: small, quiet, no bar. */
+.contact-map .leaflet-control-attribution {
+  background: transparent !important;
+  font-size: 9px;
+  line-height: 1.2;
+  color: rgba(28, 27, 24, 0.55);
+  text-shadow: 0 0 2px #fff, 0 0 2px #fff;
+  padding: 0 4px;
+}
+
+.contact-map .leaflet-control-attribution a {
+  color: inherit;
+}
+
 /* Mobile full-screen map: clear the floating filter bar (top) and dock (bottom). */
 @media (max-width: 767px) {
   .contact-map .leaflet-top {

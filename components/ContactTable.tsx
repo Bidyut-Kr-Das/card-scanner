@@ -491,7 +491,7 @@ export default function ContactTable({
                       )}
                     </td>
                     <td className="px-3 py-2.5 text-xs text-ink">
-                      {showProfiles && contact.id && contact.enrichment?.status === "DONE" ? (
+                      {showProfiles && contact.id ? (
                         <button
                           onClick={() => onViewProfile?.(contact.id!)}
                           className="inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium rounded-lg ring-1 ring-stone-200 bg-white hover:ring-accent-300 hover:bg-accent-50 text-accent-800 transition active:scale-[.98]"

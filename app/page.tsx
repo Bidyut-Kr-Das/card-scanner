@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { RotateCcw, AlertTriangle, Download, X, Info, ScanLine, LayoutGrid, Map as MapIcon, Plus } from "lucide-react";
 
@@ -13,10 +14,10 @@ import DirectoryToolbar from "@/components/DirectoryToolbar";
 import ContactTable from "@/components/ContactTable";
 import ProfileCollectionButtons from "@/components/ProfileCollectionButtons";
 import ResearchAllButton from "@/components/ResearchAllButton";
-import ProfileSlideOver from "@/components/ProfileSlideOver";
 import {useSession} from "next-auth/react";
 import { resizeImageFile } from "@/lib/resizeImage";
 import { deriveStateCountry } from "@/lib/location";
+import { downloadVCard } from "@/lib/contact";
 
 import type { CardData, ScanResponse } from "@/types/card";
 
@@ -52,8 +53,6 @@ export default function Home() {
   const [search, setSearch] = useState("");
   const [viewMode, setViewMode] = useState<"cards" | "table" | "map">("cards");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [profileId, setProfileId] = useState<string | null>(null);
-  const [profileOpen, setProfileOpen] = useState(false);
   const [filterState, setFilterState] = useState("");
   const [filterCountry, setFilterCountry] = useState("");
   const [scanSheetOpen, setScanSheetOpen] = useState(false);
@@ -293,33 +292,8 @@ export default function Home() {
   }, []);
 
     const { data: session } = useSession();
-  const downloadVCard = useCallback(() => {
-    if (!result) return;
-
-    const lines = [
-      "BEGIN:VCARD",
-      "VERSION:3.0",
-      result.fullName ? `FN:${result.fullName}` : "",
-      result.company ? `ORG:${result.company}` : "",
-      result.jobTitle ? `TITLE:${result.jobTitle}` : "",
-      ...(result.mobileNumbers ?? []).map((p) => `TEL;TYPE=CELL:${p}`),
-      ...(result.telephoneNumbers ?? []).map((p) => `TEL;TYPE=WORK:${p}`),
-      ...(result.emails ?? []).map((e) => `EMAIL:${e}`),
-      result.website ? `URL:${result.website}` : "",
-      result.address ? `ADR;TYPE=WORK:;;${result.address.replace(/\n/g, " ")}` : "",
-      "END:VCARD",
-    ].filter(Boolean);
-
-    const blob = new Blob([lines.join("\n")], { type: "text/vcard" });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${result.fullName ?? "contact"}.vcf`;
-    a.click();
-
-    URL.revokeObjectURL(url);
-  }, [result]);
+  const router = useRouter();
+  const openProfile = useCallback((id: string) => router.push(`/contacts/${id}`), [router]);
 
   return (
     <main id="main" className="bg-grain min-h-[100dvh] md:h-[calc(100dvh-64px)] md:min-h-0 md:overflow-hidden">
@@ -459,14 +433,7 @@ export default function Home() {
                       >
                         <ContactCard
                           data={contact}
-                          onViewProfile={
-                            session?.user && contact.id && contact.enrichment?.status === "DONE"
-                              ? () => {
-                                  setProfileId(contact.id!);
-                                  setProfileOpen(true);
-                                }
-                              : undefined
-                          }
+                          profileHref={session?.user && contact.id ? `/contacts/${contact.id}` : undefined}
                           actions={
                             session?.user?.role === "DEVELOPER" ? (
                               <ProfileCollectionButtons contact={contact} compact />
@@ -481,10 +448,6 @@ export default function Home() {
                 <div className="fixed inset-x-0 bottom-0 top-16 z-30 md:static md:z-auto md:h-full md:min-h-0 md:flex-1 md:overflow-hidden">
                   <ContactMap
                     contacts={filteredContacts}
-                    onViewProfile={(id) => {
-                      setProfileId(id);
-                      setProfileOpen(true);
-                    }}
                   />
                 </div>
               ) : (
@@ -492,10 +455,7 @@ export default function Home() {
                   <ContactTable
                     contacts={filteredContacts}
                     showProfiles={!!session?.user}
-                    onViewProfile={(id) => {
-                      setProfileId(id);
-                      setProfileOpen(true);
-                    }}
+                    onViewProfile={openProfile}
                   />
                 </div>
               )}
@@ -506,7 +466,7 @@ export default function Home() {
                     Latest scan: <span className="font-medium text-ink">{result.fullName ?? result.company ?? "Unnamed contact"}</span>
                   </p>
                   <button
-                    onClick={downloadVCard}
+                    onClick={() => downloadVCard(result)}
                     className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-accent-700 px-3.5 py-1.5 text-sm font-medium text-white transition duration-200 ease-spring hover:-translate-y-px hover:bg-accent-800 active:scale-[.98]"
                   >
                     <Download className="h-3.5 w-3.5" strokeWidth={2} />
@@ -664,12 +624,6 @@ export default function Home() {
           </div>
         </div>
       )}
-
-      <ProfileSlideOver
-        contactId={profileId}
-        open={profileOpen}
-        onClose={() => setProfileOpen(false)}
-      />
     </main>
   );
 }

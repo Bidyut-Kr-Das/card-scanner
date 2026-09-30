@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import L from "leaflet";
+import { LocateFixed, LocateOff, Locate } from "lucide-react";
 import "leaflet/dist/leaflet.css";
 
 import type { CardData } from "@/types/card";
@@ -30,7 +31,6 @@ type Point = {
 
 interface ContactMapProps {
   contacts: CardData[];
-  onViewProfile: (contactId: string) => void;
 }
 
 const INDIA_CENTER: [number, number] = [22.5, 79];
@@ -53,7 +53,6 @@ const SESSION_CACHE = new Map<string, [number, number] | null>();
 
 export default function ContactMap({
   contacts,
-  onViewProfile,
 }: ContactMapProps) {
   const [points, setPoints] = useState<Point[]>([]);
   const [loading, setLoading] = useState(true);
@@ -87,17 +86,26 @@ export default function ContactMap({
     iconAnchor: [10, 10],
   });
 
+  // Fly to the user's position on the next fix after a tap (Google Maps style).
+  const centerOnFixRef = useRef(false);
+
   const locateMe = () => {
     if (!("geolocation" in navigator)) {
       setLocStatus("error");
       return;
     }
 
-    // Already tracking — do not request again.
+    // Already tracking: recenter on the current position.
     if (watchIdRef.current !== null) {
+      if (userLocation) {
+        mapRef.current?.flyTo(userLocation, Math.max(mapRef.current.getZoom(), 15));
+      } else {
+        centerOnFixRef.current = true;
+      }
       return;
     }
 
+    centerOnFixRef.current = true;
     setLocStatus("requesting");
 
     watchIdRef.current = navigator.geolocation.watchPosition(
@@ -109,9 +117,18 @@ export default function ContactMap({
         setUserLocation(coords);
         setUserAccuracy(pos.coords.accuracy);
         setLocStatus("granted");
+        if (centerOnFixRef.current) {
+          centerOnFixRef.current = false;
+          mapRef.current?.flyTo(coords, Math.max(mapRef.current.getZoom(), 15));
+        }
       },
       (err) => {
         setLocStatus(err.code === 1 ? "denied" : "error");
+        // Clear the watch so the next tap can retry.
+        if (watchIdRef.current !== null) {
+          navigator.geolocation.clearWatch(watchIdRef.current);
+          watchIdRef.current = null;
+        }
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
@@ -130,6 +147,9 @@ export default function ContactMap({
       doubleClickZoom: true,
       touchZoom: true,
       maxZoom: 19,
+      // Stop panning past the poles into the grey area above/below the tiles.
+      maxBounds: [[-85.05, -540], [85.05, 540]],
+      maxBoundsViscosity: 1,
     });
 
     const street = L.tileLayer(STREET_URL, {
@@ -157,11 +177,25 @@ export default function ContactMap({
       )
       .addTo(map);
 
+    // Drop the "Leaflet" prefix link; keep the Esri tile credit (their terms require it).
+    map.attributionControl.setPrefix(false);
+
     mapRef.current = map;
 
     // Container height is layout-driven (flex / fixed full-screen on mobile), so
     // tell Leaflet whenever it changes or tiles render as a grey strip.
-    const resizeObserver = new ResizeObserver(() => map.invalidateSize());
+    // Also keep the world at least as tall as the container: on tall phone
+    // screens a zoomed-out world (256px * 2^zoom) leaves grey bands otherwise.
+    const fitMinZoom = () => {
+      const h = el.clientHeight;
+      if (!h) return;
+      map.setMinZoom(Math.max(1, Math.ceil(Math.log2(h / 256))));
+    };
+    fitMinZoom();
+    const resizeObserver = new ResizeObserver(() => {
+      map.invalidateSize();
+      fitMinZoom();
+    });
     resizeObserver.observe(el);
 
     return () => {
@@ -421,15 +455,6 @@ export default function ContactMap({
     const map = mapRef.current;
     if (!map) return;
 
-    const handlePopupOpen = (e: L.LeafletEvent) => {
-      const id = (e.popup as unknown as { getElement: () => HTMLElement | null })
-        .getElement?.()
-        ?.getAttribute("data-contact-id");
-      if (id) onViewProfile(id);
-    };
-
-    map.on("popupopen", handlePopupOpen);
-
     const currentMarkers = markersMapRef.current;
     const currentPointIds = new Set<string>();
 
@@ -451,11 +476,10 @@ export default function ContactMap({
            ${point.location
              ? `<p class="mt-1 text-xs text-stone-500">${escapeHtml(point.location)}</p>`
              : ""}
-           <button data-contact-id="${escapeHtml(
-             point.id
-           )}" class="contact-map-view mt-2 w-full rounded-md border border-stone-300 px-3 py-1.5 text-sm text-stone-900 hover:bg-accent-50 hover:border-accent-300">
-             View Profile
-           </button>
+           <a href="/contacts/${encodeURIComponent(point.id)}"
+              class="mt-3 block rounded-lg bg-accent-700 px-3 py-2 text-center text-sm font-medium !text-white no-underline hover:bg-accent-800">
+             View profile
+           </a>
          </div>`
       );
 
@@ -488,10 +512,7 @@ export default function ContactMap({
       }
     }
 
-    return () => {
-      map.off("popupopen", handlePopupOpen);
-    };
-  }, [points, onViewProfile]);
+  }, [points]);
 
   // Draw the live user location marker + accuracy circle.
   useEffect(() => {
@@ -547,32 +568,29 @@ export default function ContactMap({
         <div ref={containerRef} className="absolute inset-0" />
 
         {/* Locate me button */}
-        <div className="absolute bottom-28 right-3 z-[1000] flex flex-col items-end gap-2 md:bottom-3">
+        <div className="absolute bottom-28 right-4 z-[1000] flex items-center gap-2 md:bottom-8">
+          {(locStatus === "denied" || locStatus === "error") && (
+            <span role="alert" className="rounded-lg bg-white px-2.5 py-1.5 text-xs font-medium text-red-700 shadow-lift">
+              {locStatus === "denied" ? "Location blocked. Allow it in browser settings." : "Couldn't get your location."}
+            </span>
+          )}
           <button
             onClick={locateMe}
-            disabled={locStatus === "requesting" || locStatus === "granted"}
-            className="inline-flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-sm font-medium text-ink shadow-lift transition hover:bg-stone-50 active:scale-[.98] disabled:opacity-60"
-            title="Show my live location"
+            aria-label={locStatus === "granted" ? "Center on my location" : "Show my location"}
+            title={locStatus === "granted" ? "Center on my location" : "Show my location"}
+            className="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-lift ring-1 ring-stone-900/[0.06] transition hover:bg-stone-50 active:scale-95"
           >
-            <span className="inline-block h-3 w-3 rounded-full bg-accent-600" />
-            {locStatus === "requesting" ? "Locating…" : "Locate me"}
+            {locStatus === "denied" || locStatus === "error" ? (
+              <LocateOff className="h-5 w-5 text-red-600" strokeWidth={2} />
+            ) : locStatus === "granted" ? (
+              <LocateFixed className="h-5 w-5 text-accent-600" strokeWidth={2} />
+            ) : (
+              <Locate
+                className={`h-5 w-5 ${locStatus === "requesting" ? "animate-pulse text-accent-600" : "text-stone-600"}`}
+                strokeWidth={2}
+              />
+            )}
           </button>
-
-          {locStatus === "denied" && (
-            <span className="rounded-md bg-red-50 px-2 py-1 text-xs text-red-700 shadow">
-              Location access denied — click to retry
-            </span>
-          )}
-          {locStatus === "error" && (
-            <span className="rounded-md bg-red-50 px-2 py-1 text-xs text-red-700 shadow">
-              Unable to get location
-            </span>
-          )}
-          {locStatus === "granted" && (
-            <span className="rounded-md bg-emerald-50 px-2 py-1 text-xs text-emerald-700 shadow">
-              Tracking your location
-            </span>
-          )}
         </div>
 
         {/* Progressive resolution indicator */}

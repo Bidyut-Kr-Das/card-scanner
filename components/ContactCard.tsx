@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import {
   ArrowRight,
   Globe,
@@ -12,12 +13,13 @@ import {
   Phone,
 } from "lucide-react";
 
-import { initials } from "@/components/ProfileSlideOver";
+import { initials } from "@/lib/contact";
 import type { CardData } from "@/types/card";
 
 interface ContactCardProps {
   data: CardData;
-  onViewProfile?: () => void;
+  /** Profile page URL; the "View profile" link is hidden when absent. */
+  profileHref?: string;
   /** Content of the ⋯ menu; the button is hidden when absent. */
   actions?: React.ReactNode;
 }
@@ -58,7 +60,7 @@ function Line({ item }: { item: Item }) {
   );
 }
 
-export default function ContactCard({ data, onViewProfile, actions }: ContactCardProps) {
+export default function ContactCard({ data, profileHref, actions }: ContactCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -163,12 +165,11 @@ export default function ContactCard({ data, onViewProfile, actions }: ContactCar
         )}
       </div>
 
-      {(onViewProfile || actions) && (
+      {(profileHref || actions) && (
         <footer className="mt-auto flex items-center justify-between gap-2 border-t border-stone-100 px-5 py-2.5">
-          {onViewProfile ? (
-            <button
-              type="button"
-              onClick={onViewProfile}
+          {profileHref ? (
+            <Link
+              href={profileHref}
               className="group inline-flex items-center gap-1 rounded-md text-sm font-medium text-ink transition hover:text-accent-700"
             >
               View profile
@@ -176,7 +177,7 @@ export default function ContactCard({ data, onViewProfile, actions }: ContactCar
                 className="h-3.5 w-3.5 transition-transform duration-200 ease-spring group-hover:translate-x-0.5"
                 strokeWidth={2}
               />
-            </button>
+            </Link>
           ) : (
             <span />
           )}
